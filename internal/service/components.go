@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/laoningmeng/go-admin/internal/service/logger"
 	"github.com/laoningmeng/go-admin/internal/service/registry"
 	"google.golang.org/grpc"
 )
@@ -33,6 +34,10 @@ func Register(r registry.Register) CustomerComponent {
 		r.Init()
 		r.HealthCheck(components.Server)
 		components.Register = r
+	}
+}
+func Logger(l logger.Logger) CustomerComponent {
+	return func(components *Components) {
 
 	}
 }

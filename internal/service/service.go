@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/laoningmeng/go-admin/internal/service/logger"
 	"github.com/laoningmeng/go-admin/internal/service/registry"
 	"google.golang.org/grpc"
 	"net"
@@ -14,6 +15,7 @@ type Components struct {
 	Port     int
 	Server   *grpc.Server
 	Register registry.Register
+	Logger   logger.Logger
 }
 
 type CustomerComponent func(components *Components)
@@ -26,6 +28,7 @@ type Service struct {
 
 func NewService(component ...CustomerComponent) Service {
 	s := grpc.NewServer()
+	zap := logger.NewLogger()
 	return Service{
 		Components: Components{
 			Server:   s,
@@ -33,12 +36,14 @@ func NewService(component ...CustomerComponent) Service {
 			Port:     8890,
 			Name:     "go-admin",
 			Register: nil,
+			Logger:   zap,
 		},
 		CustomerComponents: component,
 	}
 }
 
 func (s *Service) Run() {
+	s.Components.Logger.Info("start run")
 	for _, o := range s.CustomerComponents {
 		o(&s.Components)
 	}
