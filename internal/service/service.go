@@ -26,8 +26,7 @@ type Service struct {
 	once               sync.Once
 }
 
-func NewService(component ...CustomerComponent) Service {
-	s := grpc.NewServer()
+func NewService(s *grpc.Server) Service {
 	zap := logger.NewLogger()
 	return Service{
 		Components: Components{
@@ -38,23 +37,26 @@ func NewService(component ...CustomerComponent) Service {
 			Register: nil,
 			Logger:   zap,
 		},
-		CustomerComponents: component,
+	}
+}
+func (s *Service) Init(opt []CustomerComponent) {
+	s.Components.Logger.Info("start run")
+	for _, o := range opt {
+		o(&s.Components)
 	}
 }
 
 func (s *Service) Run() {
-	s.Components.Logger.Info("start run")
-	for _, o := range s.CustomerComponents {
-		o(&s.Components)
-	}
 	s.once.Do(func() {
+		s.Components.Logger.Infof("启动信息：Addr: %s Port:%d", s.Components.Addr, s.Components.Port)
 		listen, err := net.Listen("tcp", fmt.Sprintf("%s:%d", s.Components.Addr, s.Components.Port))
 		if err != nil {
 			panic(err)
 		}
 		err = s.Components.Server.Serve(listen)
 		if err != nil {
-			panic(err)
+			//panic(err)
+			s.Components.Logger.Errorf("启动出现错误:%v", err)
 		}
 	})
 
