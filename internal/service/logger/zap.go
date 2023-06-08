@@ -16,7 +16,7 @@ func NewLogger() Logger {
 	syncWriter := zapcore.AddSync(
 		&lumberjack.Logger{
 			Filename: fileName, //文件名称
-			MaxSize:  512,      //MB
+			MaxSize:  2,        //MB
 			//MaxAge:     0,
 			MaxBackups: 0, //最大备份
 			LocalTime:  true,

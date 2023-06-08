@@ -24,10 +24,13 @@ type ConsulServerInfo struct {
 }
 
 type Consul struct {
-	Addr string
-	Port int
-	Info ConsulServerInfo
-	once sync.Once
+	Addr          string
+	Port          int
+	Info          ConsulServerInfo
+	Token         string
+	TLSSkipVerify bool
+	GRPCUseTLS    bool
+	once          sync.Once
 }
 
 func (c *Consul) HealthCheck(s *grpc.Server) {
@@ -37,6 +40,7 @@ func (c *Consul) HealthCheck(s *grpc.Server) {
 func (c *Consul) Init() {
 	cfg := capi.DefaultConfig()
 	cfg.Address = fmt.Sprintf("%s:%d", c.Addr, c.Port)
+	cfg.Token = c.Token
 	client, err := capi.NewClient(cfg)
 	if err != nil {
 		log.Fatal("registry Error:", err)
@@ -53,8 +57,8 @@ func (c *Consul) Init() {
 			GRPC:                           fmt.Sprintf("%s:%s", c.Info.Addr, strconv.Itoa(c.Info.Port)),
 			DeregisterCriticalServiceAfter: "5s",
 			//如果开启TLS,使用以下配置跳过TLS验证
-			//TLSSkipVerify:                  true,
-			//GRPCUseTLS:                     true,
+			TLSSkipVerify: c.TLSSkipVerify,
+			GRPCUseTLS:    c.GRPCUseTLS,
 		},
 	})
 }
