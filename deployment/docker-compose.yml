@@ -10,3 +10,15 @@ services:
     command: ["agent" ,"-dev", "-ui","-config-dir=./consul/config", "-client=0.0.0.0"]
     volumes:
       - ./consul/config:/consul/config
+  nacos:
+    image: nacos/nacos-server
+    container_name: nacos
+    environment:
+      - MODE=standalone
+      - NACOS_AUTH_ENABLE=true
+      - JVM_XMS=256m
+      - JVM_XMX=256m
+      - JVM_XMN=128m
+    ports:
+      - 8848:8848
+      - 9848:9848

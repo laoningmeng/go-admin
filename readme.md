@@ -11,7 +11,7 @@
 * orm: gorm
 * 环境搭建： docker docker-compose
 * 权限鉴定： metadata+token
-* 请求安全： TLS
+* 请求安全： TLS, JWT
 * 链路追踪：
 * 熔断：
 * 日志记录： zap
@@ -43,7 +43,19 @@ make server
 
 
 ## 权限鉴定和请求安全
-权限鉴定使用的是meta做简单的判断，请求安全是使用的TLS加密请求数据,需要注意的是这里并没有使用CA证书授权的机制，因为暂时不打算做客户请求公钥的需求，减少一下项目的复杂度。
+权限鉴定使用的是meta做简单的判断，请求安全是使用的TLS加密请求数据,需要注意的是这里并没有使用CA证书授权的机制，因为暂时不打算做https。
+
+
+## 开发环境
+这里的consul 其实也具有key-value的配置中心的功能，也可以直接用一个，同理nacos也是，不过各自的侧重点不一样
+* consul： http://127.0.0.1:8500
+* nacos： http://127.0.0.1:8848/nacos/index.html 账户 nacos 密码 nacos
+
+
+
+
+
+
 
 
 ## licence

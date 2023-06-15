@@ -2,28 +2,19 @@ package main
 
 import (
 	"github.com/laoningmeng/go-admin/internal/service"
+	"github.com/laoningmeng/go-admin/internal/service/global"
 	"github.com/laoningmeng/go-admin/internal/service/handler"
 	"github.com/laoningmeng/go-admin/internal/service/middleware"
 	sys "github.com/laoningmeng/go-admin/internal/service/proto"
-	"github.com/laoningmeng/go-admin/internal/service/registry"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
 
 func main() {
-	var consul registry.Register = &registry.Consul{
-		Addr:          "127.0.0.1",
-		Port:          8500,
-		Token:         "70002d33-a580-91f0-7612-9ffbc04ab589",
-		TLSSkipVerify: true,
-		GRPCUseTLS:    true,
-		Info: registry.ConsulServerInfo{
-			Name: "go-admin",
-			Port: 8890,
-			Addr: "192.168.81.119",
-		},
-	}
-	cred, err := credentials.NewServerTLSFromFile("../configs/cert/server.pem", "../configs/cert/server.key")
+	consul := service.NewConsul()
+	service.LoadConfFromNacos()
+	service.MysqlInit()
+	cred, err := credentials.NewServerTLSFromFile(global.ServerConf.CertFilePath, global.ServerConf.CertKeyPath)
 	if err != nil {
 		panic("找不到证书信息")
 	}
@@ -33,9 +24,9 @@ func main() {
 	}
 	s := service.NewService(grpc.NewServer(opt...))
 	option := []service.CustomerComponent{
-		service.Addr("0.0.0.0"),
-		service.Name("go-admin"),
-		service.Port(8890),
+		service.Addr(global.ServerConf.Addr),
+		service.Name(global.ServerConf.Name),
+		service.Port(global.ServerConf.Port),
 		service.Register(consul),
 	}
 	s.Init(option)
